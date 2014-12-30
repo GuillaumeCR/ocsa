@@ -1,19 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html ng-app='main'>
 
 <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
+    <script type="text/javascript" src="app.js"></script>
     <meta charset="UTF-8">
     <title>Ocsa</title>
     <link rel="stylesheet" type="text/css" href="ocsa.css">
 </head>
 
-<body>
-    <div id="startDateDiv">
-        Schedule starts on
-        <input id="startDateInput" type="date" onchange="startDateChanged()" />
-    </div>
-    <div id="appDiv" style="visibility:hidden">
-        <table class="floatLeft">
+<body ng-controller='MainCtlr as mainCtrl' class='centered'>
+    <script type="text/javascript" src="calendar.js"></script>
+    <section ng-controller='CalendarCtrl as calendarCtrl' style='float: left;'>
+        <div ng-show='calendarCtrl.showStartDateInput'>
+            Schedule starts on
+            <input id="startDateInput" type="date" ng-model="startDate" ng-change="calendarCtrl.startDateChanged(startDate);
+                            mainCtrl.showAgents = true" />
+        </div>
+        <table ng-show='calendarCtrl.showCalendar'>
             <thead>
                 <tr>
                     <td>Sunday</td>
@@ -25,36 +29,31 @@
                     <td>Saturday</td>
                 </tr>
             </thead>
-            <tbody id="schedule"/>
+            <tr ng-repeat='week in calendarCtrl.calendar.weeks'>
+                <td ng-repeat='day in week.days' 
+                    class='scheduleDay' 
+                    ng-class='{agentDoesntWorkThatDay: day.displayValue}'
+                    ng-click='calendarCtrl.dayClicked(day, mainCtrl.selectedAgent)'>
+                    <p>{{day.displayValue}}</p>
+                    <p ng-show='day.agent !== {}'>{{day.agent.name}}</p>
+                </td>
+            </tr>
         </table>
-        <input type="text" id="newAgentInput" placeholder="Type new agent name here" onkeypress="newAgentInputChanged()"/>
-        <table id="agentTable"/>
-    </div>
+    </section>
+    <script type="text/javascript" src="agents.js"></script>
+    <section ng-controller='AgentCtrl as agentCtrl' ng-show='mainCtrl.showAgents' style='float: right'>
+        <input type="text" placeholder="Type new agent name here" ng-model='agentCtrl.newAgentName' ng-keypress='agentCtrl.agentNameInputKeyPressed($event.keyCode)' />
+        <table>
+            <tr ng-repeat='agent in agentCtrl.agents'>
+                <td ng-class='{agentSelected: agent == agentCtrl.selectedAgent,
+                                agent: agent != agentCtrl.selectedAgent}'
+                    ng-click='agentCtrl.selectAgent(agent);
+                            mainCtrl.selectAgent(agent)'>
+                    {{agent.name}}
+                </td>
+            </tr>
+        </table>
+    </section>
 </body>
-
-<script type="text/javascript" src="calendar.js"></script>
-<script type="text/javascript" src="agents.js"></script>
-<script>
-    function startDateChanged() {
-        var startDateInput = document.getElementById("startDateInput");
-        var startDate = window.calendar.getLocalDate(new Date(startDateInput.value));
-        window.calendar.table = document.getElementById("schedule");
-        window.calendar.populate(startDate);
-        var appDiv = document.getElementById("appDiv");
-        appDiv.style.visibility = "visible";
-        var startDateDiv = document.getElementById("startDateDiv");
-        document.body.removeChild(startDateDiv);
-    }
-    
-    function newAgentInputChanged() {
-        if (event.keyCode != 13) {
-            return;
-        }
-        
-        var newAgentInput = document.getElementById("newAgentInput");
-        window.agents.newAgentTyped(newAgentInput.value);
-        newAgentInput.value = "";
-    }
-</script>
 
 </html>

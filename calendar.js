@@ -1,105 +1,58 @@
-//You have to set window.calendar.table to the tbody of the calendar for this to work.
-window.calendar = {
+(function() {
+    angular.module('main').controller('CalendarCtrl', function() {
 
-clicked: function(){
-    var agentName = window.agents.getSelectedAgent();
-    if (typeof agentName == 'undefined') {
-        return;
-    }
-    
-    var tdElement = event.target;
-    while(tdElement.nodeName.toLowerCase() != 'td'){
-        if (typeof tdElement.parentNode == 'undefined') {
-            return;
-        }
-        tdElement = tdElement.parentNode;
-    }
-    
-    var pAgent = tdElement.getElementsByClassName(window.calendar.DayAgentNameClass);
-    if (pAgent.length != 1) {
-        return;
-    }
-    
-    pAgent[0].innerText = agentName;
-    
-    window.calendar.update();
-},
+        this.showCalendar = false;
+        this.showStartDateInput = true;
+        this.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        this.calendar = {};
 
-update: function(){
-    var agent = window.agents.getSelectedAgent();
-    
-    for(var i = 0, row; row = this.table.rows[i]; i++){
-        for(var j = 0, cell; cell = row.cells[j]; j++){
-            //Skip over blank schedule days.
-            if (cell.className != "scheduleDay") {
-                var pAgent = cell.getElementsByClassName(window.calendar.DayAgentNameClass);
-                if (pAgent.length == 1 && pAgent[0].innerText == agent) {
-                    cell.className = "scheduleDay agentWorksThatDay";
-                }
-                else{
-                    cell.className = "scheduleDay agentDoesntWorkThatDay";
-                }
-            }
-        }
-    }
-},
-
-populate: function(startDate) {
-
-    var tr = document.createElement("tr");
-    this.table.appendChild(tr);
-    this.padUntilFirstDay(tr, startDate);
-    this.fillAMonth(tr, startDate);
-},
-
-padUntilFirstDay: function(tr, startDate) {
-    for (var i = 0; i < startDate.getDay(); i++) {
-        var td = document.createElement("td");
-        td.className = "scheduleDay";
-        tr.appendChild(td);
-    }
-},
-
-months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-
-DayAgentNameClass: "calendarDayAgentName",
-
-fillAMonth: function(tr, startDate) {
-    var day = startDate;
-    var lastMonth = -1;
-    for (var i = 0; i < 28; i++) {
-        var td = document.createElement("td");
-        tr.appendChild(td);
-        var text = "";
-        if (day.getMonth() != lastMonth) {
-            lastMonth = day.getMonth();
-            text = this.months[lastMonth] + " ";
-        }
-        text += day.getDate();
-        var pDay = document.createElement("p");
-        pDay.innerText = text;
-        td.appendChild(pDay);
-        var pAgent = document.createElement("p");
-        pAgent.className = this.DayAgentNameClass;
-        td.appendChild(pAgent);
-        td.onclick = this.clicked;
-
-        if (day.getDay() == 6) {
-            tr = document.createElement("tr");
-            this.table.appendChild(tr);
-        }
+        this.startDateChanged = function(startDate) {
+            this.showStartDateInput = false;
+            this.createCalendar(startDate);
+            this.showCalendar = true;
+        };
         
-        td.className = "scheduleDay agentDoesntWorkThatDay";
+        this.dayClicked = function(day, agent){
+            day.agent = agent;
+        };
 
-        day.setDate(day.getDate() + 1);
-    }
-},
+        this.createCalendar = function(startDate) {
+            //pad until first day
+            this.calendar = {
+                weeks: [{
+                    days: []
+                }]
+            };
+            for (var i = 0; i < startDate.getDay(); i++) {
+                this.calendar.weeks[0].days.push({});
+            }
 
-getLocalDate: function(gmtDate){
-    var date = new Date();
-    date.setFullYear(gmtDate.getUTCFullYear());
-    date.setMonth(gmtDate.getUTCMonth());
-    date.setDate(gmtDate.getUTCDate());
-    return date;
-}
-};
+            for (var i = 0,
+                    week = this.calendar.weeks[0],
+                    day = startDate,
+                    first = true; i < 28; i++) {
+
+                var dateDisplay = '';
+                if (first || day.getDate() == 1) {
+                    dateDisplay = this.monthNames[day.getMonth()] + ' ';
+                    first = false;
+                }
+                dateDisplay += day.getDate();
+                
+                week.days.push({
+                    date: day,
+                    displayValue: dateDisplay
+                });
+                
+                if (day.getDay() == 6) {
+                    week = {
+                        days: []
+                    };
+                    this.calendar.weeks.push(week);
+                }
+                day = new Date(day);
+                day.setDate(day.getDate() + 1);
+            }
+        };
+    });
+})();

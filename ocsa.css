@@ -3,9 +3,6 @@
     width: 5em;
 }
 
-.floatLeft {
-    float:left;
-}
 .agent {
     background-color: #CCFFCC;
 }
@@ -28,4 +25,13 @@
 
 .cantWorkOnSelected {
     background-color: #FF8888;
+}
+
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    overflow: auto;
 }
