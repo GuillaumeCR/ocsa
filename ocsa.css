@@ -1,0 +1,31 @@
+.scheduleDay {
+    height: 5em;
+    width: 5em;
+}
+
+.floatLeft {
+    float:left;
+}
+.agent {
+    background-color: #CCFFCC;
+}
+
+.agentSelected {
+    background-color: #B8E6B8;
+}
+
+.agentWorksThatDay {
+    background-color: #0066FF;
+}
+
+.agentDoesntWorkThatDay {
+    background-color: PaleTurquoise;
+}
+
+.cantWorkOnNotSelected {
+    background-color: #FFDDDD;
+}
+
+.cantWorkOnSelected {
+    background-color: #FF8888;
+}

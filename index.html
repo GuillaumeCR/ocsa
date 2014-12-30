@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ocsa</title>
+    <link rel="stylesheet" type="text/css" href="ocsa.css">
+</head>
+
+<body>
+    <div id="startDateDiv">
+        Schedule starts on
+        <input id="startDateInput" type="date" onchange="startDateChanged()" />
+    </div>
+    <div id="appDiv" style="visibility:hidden">
+        <table class="floatLeft">
+            <thead>
+                <tr>
+                    <td>Sunday</td>
+                    <td>Monday</td>
+                    <td>Tuesday</td>
+                    <td>Wednesday</td>
+                    <td>Thursday</td>
+                    <td>Friday</td>
+                    <td>Saturday</td>
+                </tr>
+            </thead>
+            <tbody id="schedule"/>
+        </table>
+        <input type="text" id="newAgentInput" placeholder="Type new agent name here" onkeypress="newAgentInputChanged()"/>
+        <table id="agentTable"/>
+    </div>
+</body>
+
+<script type="text/javascript" src="calendar.js"></script>
+<script type="text/javascript" src="agents.js"></script>
+<script>
+    function startDateChanged() {
+        var startDateInput = document.getElementById("startDateInput");
+        var startDate = window.calendar.getLocalDate(new Date(startDateInput.value));
+        window.calendar.table = document.getElementById("schedule");
+        window.calendar.populate(startDate);
+        var appDiv = document.getElementById("appDiv");
+        appDiv.style.visibility = "visible";
+        var startDateDiv = document.getElementById("startDateDiv");
+        document.body.removeChild(startDateDiv);
+    }
+    
+    function newAgentInputChanged() {
+        if (event.keyCode != 13) {
+            return;
+        }
+        
+        var newAgentInput = document.getElementById("newAgentInput");
+        window.agents.newAgentTyped(newAgentInput.value);
+        newAgentInput.value = "";
+    }
+</script>
+
+</html>
